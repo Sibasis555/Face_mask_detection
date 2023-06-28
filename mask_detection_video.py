@@ -28,7 +28,7 @@ weightsPath = r"face_detector/res10_300x300_ssd_iter_140000.caffemodel"
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # load the face mask detector model from disk
-maskNet =  pickle.load(open('face_mask_detection1.pkl', 'rb'))
+maskNet =  pickle.load(open('face_mask_detection_model.pkl', 'rb'))
 
 # initialize the video stream
 print("[INFO] starting video stream...")

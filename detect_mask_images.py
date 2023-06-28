@@ -17,17 +17,18 @@ from torchvision import models,transforms
 import pickle
 import torch
 from torch.utils.data import DataLoader
-from google.colab.patches import cv2_imshow
+# from google.colab.patches import cv2_imshow
 
-!git clone https://github.com/Sibasis555/Face_mask_detection
+# !git clone https://github.com/Sibasis555/Face_mask_detection
 
 # load our serialized face detector model from disk
-prototxtPath = r"/content/Face_mask_detection/face_detector/deploy.prototxt"
-weightsPath = r"/content/Face_mask_detection/face_detector/res10_300x300_ssd_iter_140000.caffemodel"
+prototxtPath = r"face_detector/deploy.prototxt"
+weightsPath = r"face_detector/res10_300x300_ssd_iter_140000.caffemodel"
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # load the face mask detector model from disk
-maskNet =  pickle.load(open('/content/Face_mask_detection/face_mask_detection_model.pkl', 'rb'))
+maskNet =  pickle.load(open('face_mask_detection_model.pkl', 'rb'))
+# maskNet = torch.load('face_mask_detection_model.pkl', map_location=torch.device('cpu'))
 maskNet.eval()
 
 transform=transforms.Compose([
@@ -38,8 +39,9 @@ transform=transforms.Compose([
                               transforms.Normalize(mean=[0.485,0.456,0.406],std=[0.229,0.224,0.225])
 ])
 
-image=cv2.imread(r'/content/Face_mask_detection/IMG20200219154935.jpg')
-
+image = cv2.imread(r'IMG20200219154935.jpg')
+# print(image.shape)
+image = cv2.resize(image, (1280, 720))
 h,w=image.shape[:2]
 blob=cv2.dnn.blobFromImage(image,1.0,(300,300),(104.0,177.0,123.0))
 faceNet.setInput(blob)
@@ -60,7 +62,7 @@ for i in range(0,detection.shape[2]):
     face=cv2.cvtColor(face,cv2.COLOR_BGR2RGB)
     
     face=transform(face)
-    face=face.cuda()
+    face=face#.cuda()
     face=face.unsqueeze(0)
     maskNet.eval()
     with torch.no_grad():
@@ -74,7 +76,7 @@ for i in range(0,detection.shape[2]):
     cv2.putText(image,label,(startX,startY-10),cv2.FONT_HERSHEY_SIMPLEX,2,color,4)
     cv2.rectangle(image,(startX,startY),(endX,endY),color,7)
 
-cv2_imshow(image)
+cv2.imshow('frame',image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
